@@ -371,367 +371,12 @@ let isDbConnected = false;
 let dbInitAttempts = 0;
 const MAX_INIT_ATTEMPTS = 3;
 
-let mockDbState: any = null;
-
-function initMockDb() {
-  if (!mockDbState) {
-    mockDbState = {
-      profiles: [
-        {
-          id: 'usr_admin',
-          name: 'BarberX Admin',
-          email: 'admin@barberx.app',
-          password: 'mock_password_hash',
-          phone: '5511999998888',
-          role: 'admin',
-          avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=250',
-          loyaltyPoints: 1000,
-          loyaltyTier: 'Diamante'
-        },
-        {
-          id: 'usr_771902',
-          name: 'Tauan Pires',
-          email: 'tauan.pires@barberx.app',
-          password: 'mock_password_hash',
-          phone: '5511987654321',
-          role: 'client',
-          avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-          loyaltyPoints: 480,
-          loyaltyTier: 'Ouro Metálico'
-        }
-      ],
-      professionals: [
-        {
-          id: 'prof_1',
-          name: 'Carlos Silva',
-          nickname: 'Carlão Navalha',
-          roleTitle: 'Master Barber',
-          rating: '4.90',
-          reviewsCount: 142,
-          photoUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300',
-          specialties: ['Corte Clássico', 'Degradê (Fade)', 'Barba Imperial'],
-          commissionRate: '0.40',
-          isActive: true,
-          workingHours: { monday: '09:00-19:00', tuesday: '09:00-19:00', wednesday: '09:00-19:00', thursday: '09:00-19:00', friday: '09:00-20:00', saturday: '08:00-18:00' }
-        },
-        {
-          id: 'prof_2',
-          name: 'Matheus Santos',
-          nickname: 'Matheuzinho',
-          roleTitle: 'Specialist Barber',
-          rating: '4.80',
-          reviewsCount: 98,
-          photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
-          specialties: ['Barba Terapia', 'Design de Sobrancelhas', 'Freestyle'],
-          commissionRate: '0.35',
-          isActive: true,
-          workingHours: { monday: '09:00-19:00', tuesday: '09:00-19:00', wednesday: '09:00-19:00', thursday: '09:00-19:00', friday: '09:00-20:00', saturday: '08:00-18:00' }
-        },
-        {
-          id: 'prof_3',
-          name: 'Gabriel Santos',
-          nickname: 'Gabi Hair',
-          roleTitle: 'Stylist Barber',
-          rating: '4.95',
-          reviewsCount: 180,
-          photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
-          specialties: ['Corte Moderno', 'Pigmentação', 'Platinado'],
-          commissionRate: '0.38',
-          isActive: true,
-          workingHours: { monday: '09:00-19:00', tuesday: '09:00-19:00', wednesday: '09:00-19:00', thursday: '09:00-19:00', friday: '09:00-20:00', saturday: '08:00-18:00' }
-        }
-      ],
-      services: [
-        {
-          id: 'srv_combo_1',
-          categorySlug: 'combos',
-          title: 'Combo Executivo: Corte + Barba Imperial',
-          description: 'Corte de cabelo completo à sua escolha combinado com barboterapia toalha quente e massagem facial.',
-          price: '95.00',
-          durationMinutes: 50,
-          isCombo: true,
-          originalPrice: '110.00',
-          discountPercentage: 14,
-          isPopular: true,
-          imageUrl: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=400'
-        },
-        {
-          id: 'srv_corte_1',
-          categorySlug: 'cortes',
-          title: 'Corte Moderno / Fade / Mid Fade',
-          description: 'Degradê de precisão técnica (Low, Mid, High Fade) finalizado com pomada matte de alta fixação.',
-          price: '60.00',
-          durationMinutes: 35,
-          isCombo: false,
-          isPopular: true,
-          imageUrl: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=400'
-        }
-      ],
-      appointments: [],
-      scheduleBlocks: [],
-      cashTransactions: [],
-      pointTransactions: [],
-      referrals: [],
-      rewards: [
-        {
-          id: 'rw_500',
-          title: 'Upgrade VIP de Experiência',
-          pointsRequired: 500,
-          rewardType: 'upgrade',
-          valueDescription: 'Corte + Barba ganham Hidratação Capilar e Toalha Quente grátis',
-          icon: 'Sparkles',
-          isActive: true
-        }
-      ],
-      reviews: [],
-      shopSettings: [
-        {
-          id: 'default',
-          name: 'Navo Barber & Club',
-          unitName: 'Unidade Expectativa',
-          slogan: 'Estilo, Tradição e Excelência na Medida Certa',
-          address: 'Rua Fortaleza, 1420 - Expectativa, Sobral - CE',
-          phone: '(88) 99834-0085',
-          whatsapp: '5588998340085',
-          openTime: '09:00',
-          closeTime: '20:00',
-          operatingDays: [1, 2, 3, 4, 5, 6],
-          operatingSchedule: {
-            sunday: { active: false, open: '10:00', close: '16:00' },
-            monday: { active: true, open: '09:00', close: '20:00' },
-            tuesday: { active: true, open: '09:00', close: '20:00' },
-            wednesday: { active: true, open: '09:00', close: '20:00' },
-            thursday: { active: true, open: '09:00', close: '20:00' },
-            friday: { active: true, open: '09:00', close: '21:00' },
-            saturday: { active: true, open: '09:00', close: '20:00' }
-          },
-          mapsUrl: 'https://maps.app.goo.gl/2uCakwEHwA6bbXq97',
-          instagram: '@barbearianavo',
-          logoUrl: '',
-          description: 'Barbearia premium com foco em experiência do cliente, cortes modernos e tradicionais.'
-        }
-      ],
-      waitingQueue: []
-    };
-  }
-
-  function evaluateClause(item: any, clause: any): boolean {
-    if (!clause) return true;
-    if (typeof clause === 'string' || typeof clause === 'number' || typeof clause === 'boolean') {
-      return String(item.id) === String(clause);
-    }
-    const colName = clause?.column?.name || clause?.left?.name || '';
-    const val = clause?.value !== undefined ? clause.value : (clause?.right !== undefined ? clause.right : null);
-    if (colName && val !== null) {
-      const camelName = colName.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-      const itemVal = item[colName] !== undefined ? item[colName] : item[camelName];
-      return String(itemVal) === String(val);
-    }
-    if (clause?.conditions && Array.isArray(clause.conditions)) {
-      if (clause.operator === 'and') {
-        return clause.conditions.every((c: any) => evaluateClause(item, c));
-      }
-      if (clause.operator === 'or') {
-        return clause.conditions.some((c: any) => evaluateClause(item, c));
-      }
-    }
-    return true;
-  }
-
-  function filterListByArgs(list: any[], whereClause: any): any[] {
-    if (!whereClause) return list;
-    return list.filter(item => evaluateClause(item, whereClause));
-  }
-
-  function getTableName(table: any): string {
-    if (!table) return '';
-    if (table === schema.appointments) return 'appointments';
-    if (table === schema.profiles) return 'profiles';
-    if (table === schema.professionals) return 'professionals';
-    if (table === schema.services) return 'services';
-    if (table === schema.rewards) return 'rewards';
-    if (table === schema.reviews) return 'reviews';
-    if (table === schema.referrals) return 'referrals';
-    if (table === schema.pointTransactions) return 'pointTransactions';
-    if (table === schema.shopSettings) return 'shopSettings';
-    if (table === schema.waitingQueue) return 'waitingQueue';
-    if (table === schema.scheduleBlocks) return 'scheduleBlocks';
-    if (table === schema.cashTransactions) return 'cashTransactions';
-    const name = table[Symbol.for('drizzle:Name')] || table.name;
-    if (name) {
-      if (name === 'appointments') return 'appointments';
-      if (name === 'profiles') return 'profiles';
-      if (name === 'professionals') return 'professionals';
-      if (name === 'services') return 'services';
-      if (name === 'rewards') return 'rewards';
-      if (name === 'reviews') return 'reviews';
-      if (name === 'referrals') return 'referrals';
-      if (name === 'point_transactions') return 'pointTransactions';
-      if (name === 'shop_settings') return 'shopSettings';
-      if (name === 'waiting_queue') return 'waitingQueue';
-      if (name === 'schedule_blocks') return 'scheduleBlocks';
-      if (name === 'cash_transactions') return 'cashTransactions';
-    }
-    return '';
-  }
-
-  return {
-    query: {
-      profiles: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.profiles], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.profiles], args?.where)[0] || null
-      },
-      professionals: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.professionals], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.professionals], args?.where)[0] || null
-      },
-      services: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.services], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.services], args?.where)[0] || null
-      },
-      appointments: {
-        findMany: async (args?: any) => {
-          let list = filterListByArgs([...mockDbState.appointments], args?.where);
-          if (args?.orderBy) {
-            list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-          }
-          if (args?.limit) list = list.slice(0, args.limit);
-          return list;
-        },
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.appointments], args?.where)[0] || null
-      },
-      rewards: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.rewards], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.rewards], args?.where)[0] || null
-      },
-      reviews: {
-        findMany: async (args?: any) => {
-          let list = filterListByArgs([...mockDbState.reviews], args?.where);
-          if (args?.limit) list = list.slice(0, args.limit);
-          return list;
-        },
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.reviews], args?.where)[0] || null
-      },
-      referrals: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.referrals], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.referrals], args?.where)[0] || null
-      },
-      pointTransactions: {
-        findMany: async (args?: any) => {
-          let list = filterListByArgs([...mockDbState.pointTransactions], args?.where);
-          if (args?.orderBy) {
-            list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-          }
-          return list;
-        },
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.pointTransactions], args?.where)[0] || null
-      },
-      waitingQueue: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.waitingQueue], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.waitingQueue], args?.where)[0] || null
-      },
-      scheduleBlocks: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.scheduleBlocks], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.scheduleBlocks], args?.where)[0] || null
-      },
-      cashTransactions: {
-        findMany: async (args?: any) => filterListByArgs([...mockDbState.cashTransactions], args?.where),
-        findFirst: async (args?: any) => filterListByArgs([...mockDbState.cashTransactions], args?.where)[0] || null
-      }
-    },
-
-    select: () => {
-      return {
-        from: (table: any) => {
-          const tableName = getTableName(table);
-          let list = [...(mockDbState[tableName] || [])];
-          const chain = {
-            orderBy: () => chain,
-            limit: () => chain,
-            where: (whereClause: any) => {
-              list = filterListByArgs(list, whereClause);
-              return chain;
-            },
-            then: (resolve: any) => resolve(list)
-          };
-          return chain;
-        }
-      };
-    },
-
-    insert: (table: any) => {
-      const tableName = getTableName(table);
-      return {
-        values: (values: any) => {
-          const list = mockDbState[tableName] || [];
-          const records = Array.isArray(values) ? values : [values];
-          const inserted = records.map(r => {
-            const rec = { ...r };
-            if (!rec.id) rec.id = `mock_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-            if (!rec.createdAt) rec.createdAt = new Date();
-            list.push(rec);
-            return rec;
-          });
-          const chain = {
-            onConflictDoUpdate: () => chain,
-            onConflictDoNothing: () => chain,
-            then: (resolve: any) => resolve(Array.isArray(values) ? inserted : inserted[0])
-          };
-          return chain;
-        }
-      };
-    },
-
-    update: (table: any) => {
-      const tableName = getTableName(table);
-      return {
-        set: (updateData: any) => {
-          return {
-            where: (whereClause: any) => {
-              const list = mockDbState[tableName] || [];
-              const targets = filterListByArgs(list, whereClause);
-              targets.forEach((item: any) => {
-                Object.assign(item, updateData, { updatedAt: new Date() });
-              });
-              return {
-                then: (resolve: any) => resolve()
-              };
-            }
-          };
-        }
-      };
-    },
-
-    delete: (table: any) => {
-      const tableName = getTableName(table);
-      return {
-        where: (whereClause: any) => {
-          const list = mockDbState[tableName] || [];
-          const targets = filterListByArgs(list, whereClause);
-          const targetIds = targets.map((t: any) => t.id);
-          mockDbState[tableName] = list.filter((item: any) => !targetIds.includes(item.id));
-          return {
-            then: (resolve: any) => resolve()
-          };
-        },
-        then: (resolve: any) => {
-          mockDbState[tableName] = [];
-          resolve();
-        }
-      };
-    }
-  };
-}
-
 async function initializeDb(): Promise<void> {
   try {
     const connectionString = process.env.DATABASE_URL;
     
     if (!connectionString) {
-      console.warn('[API] DATABASE_URL não definida. Ativando Mock DB em memória para desenvolvimento...');
-      db = initMockDb();
-      isDbConnected = true;
-      return;
+      throw new Error('DATABASE_URL é obrigatória. A aplicação não pode operar sem banco de dados.');
     }
 
     if (!connectionString.startsWith('postgres://') && !connectionString.startsWith('postgresql://')) {
@@ -3588,101 +3233,43 @@ app.post("/api/loyalty/config", requireAuth, requireAdmin, async (req: any, res:
 // =====================================================================
 // SHOP PROFILE & SETTINGS ENDPOINTS
 // =====================================================================
-let inMemoryShopProfile: any = {
-  id: 'default',
-  name: 'Navo Barber & Club',
-  unitName: 'Unidade Expectativa',
-  slogan: 'Estilo, Tradição e Excelência na Medida Certa',
-  address: 'Rua Fortaleza, 1420 - Expectativa, Sobral - CE',
-  phone: '(88) 99834-0085',
-  whatsapp: '5588998340085',
-  openTime: '09:00',
-  closeTime: '20:00',
-  operatingDays: [1, 2, 3, 4, 5, 6],
-  operatingSchedule: {
-    sunday: { active: false, open: '10:00', close: '16:00' },
-    monday: { active: true, open: '09:00', close: '20:00' },
-    tuesday: { active: true, open: '09:00', close: '20:00' },
-    wednesday: { active: true, open: '09:00', close: '20:00' },
-    thursday: { active: true, open: '09:00', close: '20:00' },
-    friday: { active: true, open: '09:00', close: '21:00' },
-    saturday: { active: true, open: '09:00', close: '20:00' }
-  },
-  mapsUrl: 'https://maps.app.goo.gl/2uCakwEHwA6bbXq97',
-  instagram: '@barbearianavo',
-  logoUrl: '',
-  description: 'Barbearia premium com foco em experiência do cliente, cortes modernos e tradicionais.'
-};
-
 app.get("/api/shop-profile", async (req: any, res: any) => {
   try {
-    if (db && isDbConnected) {
-      const rows = await db.select().from(schema.shopSettings).where(eq(schema.shopSettings.id, 'default'));
-      if (rows.length > 0) {
-        const row = rows[0];
-        inMemoryShopProfile = {
-          id: row.id,
-          name: row.name,
-          unitName: row.unitName,
-          slogan: row.slogan,
-          address: row.address,
-          phone: row.phone,
-          whatsapp: row.whatsapp,
-          openTime: row.openTime,
-          closeTime: row.closeTime,
-          operatingDays: row.operatingDays,
-          operatingSchedule: row.operatingSchedule,
-          mapsUrl: row.mapsUrl,
-          instagram: row.instagram,
-          logoUrl: row.logoUrl || '',
-          description: row.description
-        };
-      }
-    }
-  } catch (err) {
-    console.warn('[API] Erro ao buscar perfil da barbearia no DB, utilizando cache:', err);
+    const rows = await db.select().from(schema.shopSettings).where(eq(schema.shopSettings.id, 'default'));
+    if (!rows.length) return res.status(404).json({ error: 'Perfil da barbearia não cadastrado no banco de dados.' });
+    const row = rows[0];
+    res.json({
+      id: row.id, name: row.name, unitName: row.unitName, slogan: row.slogan,
+      address: row.address, phone: row.phone, whatsapp: row.whatsapp,
+      openTime: row.openTime, closeTime: row.closeTime,
+      operatingDays: row.operatingDays, operatingSchedule: row.operatingSchedule,
+      mapsUrl: row.mapsUrl, instagram: row.instagram, logoUrl: row.logoUrl || '',
+      description: row.description
+    });
+  } catch (e: any) {
+    return handleError(res, e, req.path);
   }
-  res.json(inMemoryShopProfile);
 });
 
 app.post("/api/shop-profile", requireAuth, requireAdmin, async (req: any, res: any) => {
   try {
     const data = req.body;
-    inMemoryShopProfile = {
-      ...inMemoryShopProfile,
-      ...data,
-      id: 'default'
+    const payload = {
+      id: 'default', name: data.name, unitName: data.unitName, slogan: data.slogan,
+      address: data.address, phone: data.phone, whatsapp: data.whatsapp,
+      openTime: data.openTime, closeTime: data.closeTime,
+      operatingDays: data.operatingDays, operatingSchedule: data.operatingSchedule,
+      mapsUrl: data.mapsUrl || '', instagram: data.instagram || '',
+      logoUrl: data.logoUrl || '', description: data.description || '', updatedAt: new Date()
     };
-
-    if (db && isDbConnected) {
-      const payload = {
-        id: 'default',
-        name: inMemoryShopProfile.name || 'Navo Barber & Club',
-        unitName: inMemoryShopProfile.unitName || 'Unidade Jardins',
-        slogan: inMemoryShopProfile.slogan || '',
-        address: inMemoryShopProfile.address || '',
-        phone: inMemoryShopProfile.phone || '',
-        whatsapp: inMemoryShopProfile.whatsapp || '',
-        openTime: inMemoryShopProfile.openTime || '09:00',
-        closeTime: inMemoryShopProfile.closeTime || '20:00',
-        operatingDays: inMemoryShopProfile.operatingDays || [1, 2, 3, 4, 5, 6],
-        operatingSchedule: inMemoryShopProfile.operatingSchedule || {},
-        mapsUrl: inMemoryShopProfile.mapsUrl || '',
-        instagram: inMemoryShopProfile.instagram || '',
-        logoUrl: inMemoryShopProfile.logoUrl || '',
-        description: inMemoryShopProfile.description || '',
-        updatedAt: new Date()
-      };
-
-      const existing = await db.select().from(schema.shopSettings).where(eq(schema.shopSettings.id, 'default'));
-      if (existing.length > 0) {
-        await db.update(schema.shopSettings).set(payload).where(eq(schema.shopSettings.id, 'default'));
-      } else {
-        await db.insert(schema.shopSettings).values(payload);
-      }
+    const existing = await db.select().from(schema.shopSettings).where(eq(schema.shopSettings.id, 'default'));
+    if (existing.length > 0) {
+      await db.update(schema.shopSettings).set(payload).where(eq(schema.shopSettings.id, 'default'));
+    } else {
+      await db.insert(schema.shopSettings).values(payload);
     }
-
-    res.json({ success: true, profile: inMemoryShopProfile, message: 'Perfil da barbearia atualizado com sucesso!' });
+    const [saved] = await db.select().from(schema.shopSettings).where(eq(schema.shopSettings.id, 'default'));
+    res.json({ success: true, profile: saved, message: 'Perfil da barbearia atualizado com sucesso!' });
   } catch (e: any) {
     return handleError(res, e, req.path);
   }
@@ -4127,24 +3714,7 @@ app.get("/api/reviews/public", async (req: any, res: any) => {
 
     res.json(populated);
   } catch (e: any) {
-    res.json([
-      {
-        id: 'rev_demo_1',
-        clientName: 'Carlos Eduardo',
-        barberName: 'Marcos Oliver',
-        rating: 5,
-        comment: 'Melhor barbearia de São Paulo! Atendimento rápido, ambiente incrível e o café é top.',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'rev_demo_2',
-        clientName: 'Gabriel Santos',
-        barberName: 'Lucas Barbeiro',
-        rating: 5,
-        comment: 'O programa de pontos vale muito a pena. Já troquei por uma pomada grátis e ganhei upgrade no corte!',
-        createdAt: new Date().toISOString()
-      }
-    ]);
+    return handleError(res, e, req.path);
   }
 });
 
