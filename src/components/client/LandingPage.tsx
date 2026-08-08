@@ -68,9 +68,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGoToBooking, onGoToA
     fetchShopProfile().then(data => {
       if (data) setShopProfile(data);
     });
-    fetchServicesFromSupabase().then(data => {
-      if (data && data.length > 0) setDbServices(data);
-    });
+    fetchServicesFromSupabase()
+      .then(data => setDbServices(Array.isArray(data) ? data : []))
+      .catch(() => setDbServices([]));
   }, []);
 
   const toggleMenu = () => {
@@ -138,37 +138,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGoToBooking, onGoToA
     return '09:00';
   }, [shopProfile]);
 
-  const defaultServices = [
-    {
-      id: 'srv_1',
-      title: 'Corte Clássico',
-      category: 'cabelo',
-      price: 60,
-      duration_minutes: 45,
-      description: 'Tesoura e máquina com acabamento.',
-      image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=400&auto=format&fit=crop',
-    },
-    {
-      id: 'srv_2',
-      title: 'Barba Premium',
-      category: 'barba',
-      price: 45,
-      duration_minutes: 30,
-      description: 'Toalha quente e navalha.',
-      image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=400&auto=format&fit=crop',
-    },
-    {
-      id: 'srv_3',
-      title: 'Combo Corte + Barba',
-      category: 'cabelo',
-      price: 95,
-      duration_minutes: 75,
-      description: 'Experiência completa Navo Premium.',
-      image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=400&auto=format&fit=crop',
-    }
-  ];
-
-  const servicesToDisplay = dbServices.length > 0 ? dbServices : defaultServices;
+  // A landing page não possui catálogo local: banco vazio significa galeria vazia.
+  const servicesToDisplay = dbServices;
 
   const filteredServices = servicesToDisplay.filter(s => {
     if (activeCategory === 'todos') return true;
@@ -190,49 +161,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGoToBooking, onGoToA
   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
 
   const galleryFeaturedItems = useMemo(() => {
-    const all = dbServices.length > 0 ? dbServices : defaultServices;
-    // Serviços com selo de destaque (popular, is_popular, badge, is_featured, is_combo)
-    let list = all.filter(s => Boolean(s.popular || s.is_popular || s.badge || s.is_featured || s.isFeatured || s.is_combo));
-    if (list.length === 0) {
-      list = all;
-    }
-
-    const defaultCutPresets = [
-      { id: 'cut_1', title: 'Fade Moderno', price: 60, duration_minutes: 45, description: 'Degradê na navalha com alinhamento cirúrgico.', badge: 'Mais Vendido', image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=1000&auto=format&fit=crop' },
-      { id: 'cut_2', title: 'Barboterapia VIP', price: 50, duration_minutes: 35, description: 'Toalha quente, massagem facial e navalha amolada.', badge: 'Destaque', image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1000&auto=format&fit=crop' },
-      { id: 'cut_3', title: 'Combo Imperador', price: 100, duration_minutes: 75, description: 'Corte + Barba + Sobrancelha com hidratação.', badge: 'Experiência Completa', image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=1000&auto=format&fit=crop' },
-      { id: 'cut_4', title: 'Corte Tesoura & Freestyle', price: 70, duration_minutes: 50, description: 'Design exclusivo na tesoura e acabamento preciso.', badge: 'Corte Mestre', image: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=80&w=1000&auto=format&fit=crop' },
-      { id: 'cut_5', title: 'Design de Barba & Pigmentação', price: 65, duration_minutes: 40, description: 'Alinhamento com pigmentação e finalização.', badge: 'Exclusivo', image: 'https://images.unsplash.com/photo-1517832606299-7ae9b720a186?q=80&w=1000&auto=format&fit=crop' },
-      { id: 'cut_6', title: 'Tratamento & Styling', price: 55, duration_minutes: 30, description: 'Lavagem especial, hidratação e pomada matte.', badge: 'Cuidado VIP', image: 'https://images.unsplash.com/photo-1593728612741-2461ccce8fdb?q=80&w=1000&auto=format&fit=crop' }
-    ];
-
-    const combined = [...list];
-    if (combined.length < 6) {
-      for (const preset of defaultCutPresets) {
-        if (combined.length >= 6) break;
-        if (!combined.some(item => (item.title || '').toLowerCase() === preset.title.toLowerCase())) {
-          combined.push(preset as any);
-        }
-      }
-    }
-
-    const featured = combined.slice(0, 6);
-    const defaultPhotos = defaultCutPresets.map(p => p.image);
-
-    return featured.map((service, idx) => {
-      const preset = defaultCutPresets[idx % defaultCutPresets.length];
-      return {
-        service,
-        id: service.id || `feat_${idx}`,
-        title: service.title || preset.title,
-        price: Number(service.price) || preset.price,
-        duration: service.duration_minutes || service.duration || preset.duration_minutes,
-        description: service.description || preset.description,
-        badge: service.badge || (service.is_combo ? 'Combo Especial' : (service.popular || service.is_popular) ? 'Mais Vendido' : preset.badge),
-        src: service.image || service.image_url || defaultPhotos[idx % defaultPhotos.length]
-      };
-    });
-  }, [dbServices, defaultServices]);
+    const list = dbServices.filter(s => Boolean(s.popular || s.is_popular || s.badge || s.is_featured || s.isFeatured || s.is_combo));
+    const services = list.length > 0 ? list : dbServices;
+    return services.slice(0, 6).map((service, idx) => ({
+      service,
+      id: service.id || `db_service_${idx}`,
+      title: service.title || 'Serviço',
+      price: Number(service.price || 0),
+      duration: Number(service.duration_minutes || service.duration || 0),
+      description: service.description || '',
+      badge: service.badge || (service.is_combo ? 'Combo Especial' : (service.popular || service.is_popular) ? 'Mais Vendido' : ''),
+      src: service.image || service.image_url || (Array.isArray(service.gallery_urls) ? service.gallery_urls[0] : '') || ''
+    }));
+  }, [dbServices]);
 
   useEffect(() => {
     if (selectedGalleryIndex === null) return;
@@ -690,7 +631,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGoToBooking, onGoToA
 
           {/* Galeria Bento Grid dos Serviços com Selo de Destaque (no máximo 6 fotos) */}
           <div className="grid grid-cols-12 grid-rows-6 gap-[clamp(0.25rem,0.6vh,0.65rem)] flex-1 min-h-0 w-full h-full">
-            {galleryFeaturedItems.map((item, index) => {
+            {galleryFeaturedItems.length === 0 ? (
+              <div className="col-span-12 row-span-6 flex items-center justify-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 text-center p-6">
+                <p className="text-sm font-medium text-neutral-500">Nenhum serviço cadastrado no banco de dados.</p>
+              </div>
+            ) : galleryFeaturedItems.map((item, index) => {
               const isHero = index === 0;
               let gridClass = 'col-span-4 md:col-span-4 row-span-2 md:row-span-2';
               if (index === 0) {
