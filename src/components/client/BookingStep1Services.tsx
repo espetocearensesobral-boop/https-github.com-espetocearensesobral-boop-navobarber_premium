@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ServiceItem } from '../../types';
 import { DEFAULT_CATEGORIES, getCategoryName } from '../../data/categories';
-import { fetchServicesFromSupabase } from '../../services/supabaseDataService';
+import { fetchServicesFromSupabase, getCachedServices } from '../../services/supabaseDataService';
 import { ServiceImageCarousel } from './ServiceImageCarousel';
 import { ImageWithFallback } from '../ui/ImageWithFallback';
 import { hapticLight, hapticMedium, hapticSuccess } from '../../lib/haptics';
@@ -50,8 +50,9 @@ export const BookingStep1Services: React.FC<BookingStep1Props> = ({
   const [activeCategory, setActiveCategory] = useState<string>('cat_all');
   const [isCategoryOpen, setIsCategoryOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [services, setServices] = useState<ServiceItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const cachedServices = getCachedServices();
+  const [services, setServices] = useState<ServiceItem[]>(() => cachedServices || []);
+  const [loading, setLoading] = useState<boolean>(() => !cachedServices || cachedServices.length === 0);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [modalService, setModalService] = useState<ServiceItem | null>(null);
 
@@ -68,7 +69,9 @@ export const BookingStep1Services: React.FC<BookingStep1Props> = ({
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
-      setLoading(true);
+      if (!getCachedServices() || getCachedServices()?.length === 0) {
+        setLoading(true);
+      }
       const data = await fetchServicesFromSupabase();
       if (isMounted) {
         setServices(data);

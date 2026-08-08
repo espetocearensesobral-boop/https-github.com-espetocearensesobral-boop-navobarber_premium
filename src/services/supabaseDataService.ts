@@ -12,9 +12,17 @@ export interface ScheduleBlock {
 
 const API_BASE = '/api';
 
+let servicesCache: ServiceItem[] | null = null;
 let servicesFetchPromise: Promise<ServiceItem[]> | null = null;
 
+export function getCachedServices(): ServiceItem[] | null {
+  return servicesCache;
+}
+
 export async function fetchServicesFromSupabase(forceRefresh = false): Promise<ServiceItem[]> {
+  if (servicesCache && !forceRefresh) {
+    return servicesCache;
+  }
   if (servicesFetchPromise && !forceRefresh) {
     return servicesFetchPromise;
   }
@@ -24,7 +32,8 @@ export async function fetchServicesFromSupabase(forceRefresh = false): Promise<S
       if (!res.ok) throw new Error('Falha ao buscar serviços do Supabase');
       const data = await res.json();
       if (!Array.isArray(data)) {
-        throw new Error('Resposta inválida do banco de dados para serviços');
+        servicesCache = [];
+        return [];
       }
       const mapped = data.map((s: any) => ({
         id: s.id,
@@ -40,10 +49,11 @@ export async function fetchServicesFromSupabase(forceRefresh = false): Promise<S
         image_url: s.imageUrl,
         gallery_urls: Array.isArray(s.galleryUrls) && s.galleryUrls.length > 0 ? s.galleryUrls : (s.imageUrl ? [s.imageUrl] : [])
       }));
+      servicesCache = mapped;
       return mapped;
     } catch (err) {
       console.error('Erro ao carregar serviços do Supabase:', err);
-      throw err;
+      return servicesCache || [];
     } finally {
       servicesFetchPromise = null;
     }
@@ -55,6 +65,7 @@ export async function deleteAllServicesInSupabase(): Promise<boolean> {
   try {
     const res = await authFetch(`${API_BASE}/services/all`, { method: 'DELETE' });
     if (res.ok) {
+      servicesCache = [];
     }
     return res.ok;
   } catch (err) {
@@ -63,9 +74,17 @@ export async function deleteAllServicesInSupabase(): Promise<boolean> {
   }
 }
 
+let professionalsCache: Professional[] | null = null;
 let professionalsFetchPromise: Promise<Professional[]> | null = null;
 
+export function getCachedProfessionals(): Professional[] | null {
+  return professionalsCache;
+}
+
 export async function fetchProfessionalsFromSupabase(forceRefresh = false): Promise<Professional[]> {
+  if (professionalsCache && !forceRefresh) {
+    return professionalsCache;
+  }
   if (professionalsFetchPromise && !forceRefresh) {
     return professionalsFetchPromise;
   }
@@ -75,7 +94,8 @@ export async function fetchProfessionalsFromSupabase(forceRefresh = false): Prom
       if (!res.ok) throw new Error('Falha ao buscar profissionais do Supabase');
       const data = await res.json();
       if (!Array.isArray(data)) {
-        throw new Error('Resposta inválida do banco de dados para profissionais');
+        professionalsCache = [];
+        return [];
       }
       const mapped = data.map((p: any) => ({
         id: p.id,
@@ -90,10 +110,11 @@ export async function fetchProfessionalsFromSupabase(forceRefresh = false): Prom
         working_hours: p.workingHours,
         is_active: p.isActive ?? true
       }));
+      professionalsCache = mapped;
       return mapped;
     } catch (err) {
       console.error('Erro ao carregar profissionais do Supabase:', err);
-      throw err;
+      return professionalsCache || [];
     } finally {
       professionalsFetchPromise = null;
     }

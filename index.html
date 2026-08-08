@@ -53,7 +53,8 @@
     <script>
       (function() {
         try {
-          var theme = null;
+          var savedTheme = localStorage.getItem('theme');
+          var theme = savedTheme;
           if (!theme) {
             var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             theme = prefersDark ? 'dark' : 'light';

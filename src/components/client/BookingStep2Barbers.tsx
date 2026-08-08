@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Professional, ServiceItem } from '../../types';
-import { fetchProfessionalsFromSupabase } from '../../services/supabaseDataService';
+import { fetchProfessionalsFromSupabase, getCachedProfessionals } from '../../services/supabaseDataService';
 import { UserCheck, Star, Zap, CheckCircle, ArrowLeft, ArrowRight, User, Loader2, Calendar, Clock, AlertCircle } from 'lucide-react';
 import { optimizeImageUrl } from '../../lib/imageUtils';
 import { authFetch } from '../../lib/api';
@@ -50,8 +50,9 @@ export const BookingStep2Barbers: React.FC<BookingStep2Props> = ({
   onBack,
   onNext
 }) => {
-  const [barbers, setBarbers] = useState<Professional[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCachedProfessionals();
+  const [barbers, setBarbers] = useState<Professional[]>(() => cached ? processBarbersList(cached) : []);
+  const [loading, setLoading] = useState(!cached || cached.length === 0);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [busyMap, setBusyMap] = useState<Record<string, string[]>>({});
@@ -64,7 +65,9 @@ export const BookingStep2Barbers: React.FC<BookingStep2Props> = ({
   useEffect(() => {
     let isMounted = true;
     async function loadBarbers() {
-      setLoading(true);
+      if (!getCachedProfessionals() || getCachedProfessionals()?.length === 0) {
+        setLoading(true);
+      }
       const data = await fetchProfessionalsFromSupabase();
       if (isMounted) {
         setBarbers(processBarbersList(data));
